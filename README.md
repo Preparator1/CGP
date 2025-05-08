@@ -1,2 +1,2 @@
 # CGP Visualizer
-Application for visualizing chromosomes from visualization.cgp file.
+An application for visualizing chromosomes from a visualization.cgp file.
