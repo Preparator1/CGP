@@ -31,6 +31,7 @@ type Run = {
 
 interface ParsedProps {
     onDataParsed: (
+        descriptions: string,
         inputs: string[],
         outputs: string[],
         runs: Run[]
@@ -95,14 +96,18 @@ const FileReaderComponent: React.FC<ParsedProps> = ({onDataParsed}) => {
     const parse = (input : string) => {
         const fileRows = input.split(/\r?\n/);
         
+        let description: string = "";
         let inputs: string[] = [];
         let outputs: string[] = [];
         let runsCurves: Curve[] = [];
         let runsGenomes: Genome[] = [];
         let runsNodes: Node[][] = [];
+        let commentIndex: number = 0;
 
         fileRows.forEach((row, index) => {
             if (row.startsWith("#")) {
+                commentIndex++;
+
                 if (row.startsWith("#%")) {
                     const prefix = row.slice(0, 3);
                     const data = row.slice(3)?.replace(/ /g, '').split(',');
@@ -117,10 +122,9 @@ const FileReaderComponent: React.FC<ParsedProps> = ({onDataParsed}) => {
                             break;
                     }
                 } else {
-                    // TODO: ZPRACOVAT UVODNI KOMENTAR ?
-                    console.log(row)
+                    description = row.substring(1).trim()
                 }
-            } else if (index % 2 === 0) {
+            } else if ((index - commentIndex) % 2 !== 0) {
                 let genome: Genome = {inputs: 0, outputs: 0, columns: 0, rows: 0, nodeInputs: 0, lBack: 0};
                 let genomeInfo = row.match(/{\s*(\d+\s*,\s*){6}\d+\s*}/g)?.[0]
 
@@ -180,7 +184,7 @@ const FileReaderComponent: React.FC<ParsedProps> = ({onDataParsed}) => {
             runs.push({id: index, curve: runsCurves?.[index], genome: runsGenomes?.[index], chromosome: runsNodes?.[index]})
         }
 
-        onDataParsed(inputs, outputs, runs);
+        onDataParsed(description, inputs, outputs, runs);
     };
 
     const handleClick = () => {

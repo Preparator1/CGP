@@ -68,6 +68,9 @@ const ChromosomeBox: React.FC<ChromosomeBoxProps> = ({inputs, outputs, run, hide
 	const zoomGroupRef = React.useRef<SVGGElement | null>(null);
 	const [inactiveNodes, setInactiveNodes] = useState<number[]>([]);
 	const [activeNodes, setActiveNodes] = useState<number[]>([]);
+	
+	const width = 900;
+	const height = 600;
 
 	const drawIO = (
 		svg: d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -96,40 +99,42 @@ const ChromosomeBox: React.FC<ChromosomeBoxProps> = ({inputs, outputs, run, hide
 			.attr("font-weight", "bold")
 			.text(node_index)
 
-		const tempText = svg.append("text")
-							.attr("x", 0)
-							.attr("y", 0)
-							.attr("font-size", 12)
-							.text(node_name);
+		if (node_name) {
+			const tempText = svg.append("text")
+								.attr("x", 0)
+								.attr("y", 0)
+								.attr("font-size", 12)
+								.text(node_name);
 
-		const textWidth = tempText.node()?.getBBox().width ?? 0;
-		tempText.remove();
+			const textWidth = tempText.node()?.getBBox().width ?? 0;
+			tempText.remove();
 
-		const rectWidth = textWidth + 10;
-		const rectStart = x - rectWidth / 2;
+			const rectWidth = textWidth + 10;
+			const rectStart = x - rectWidth / 2;
 		
-		svg.append("rect")
-			.attr("class", `node-${node_index}`)
-			.attr("x", rectStart)
-			.attr("y", y - 40)
-			.attr("width", rectWidth)
-			.attr("height", 20)
-			.attr("rx", 5)
-       		.attr("ry", 5)
-			.attr("fill", "lightblue")
-			.attr("stroke", "black")
-			.attr("stroke-width", 2)
+			svg.append("rect")
+				.attr("class", `node-${node_index}`)
+				.attr("x", rectStart)
+				.attr("y", y - 40)
+				.attr("width", rectWidth)
+				.attr("height", 20)
+				.attr("rx", 5)
+				.attr("ry", 5)
+				.attr("fill", "lightblue")
+				.attr("stroke", "black")
+				.attr("stroke-width", 2)
 
-		svg.append("text")
-			.attr("class", `node-${node_index}`)
-			.attr("x", x)
-			.attr("y", y - 29)
-			.attr("text-anchor", "middle")
-			.attr("dominant-baseline", "middle")
-			.attr("font-size", 12)
-			.attr("fill", "black")
-			.attr("font-weight", "bold")
-			.text(node_name)
+			svg.append("text")
+				.attr("class", `node-${node_index}`)
+				.attr("x", x)
+				.attr("y", y - 29)
+				.attr("text-anchor", "middle")
+				.attr("dominant-baseline", "middle")
+				.attr("font-size", 12)
+				.attr("fill", "black")
+				.attr("font-weight", "bold")
+				.text(node_name)
+		}
 
 		return [
 			{ x_coord: x, y_coord: y }
@@ -866,11 +871,20 @@ const ChromosomeBox: React.FC<ChromosomeBoxProps> = ({inputs, outputs, run, hide
 
 			findInactiveNodes(genome, chromosome)
 
-			// TODO: Dynamicky menit pozice na zaklade velikosti radku
+			const chromosomeWidth = 165 + genome.columns * 130;
+			const initialWidth = (width - chromosomeWidth > 0) ? + 25 + (width - chromosomeWidth) / 2 : 25;
+
+			const maxRowElem = (genome.rows >= genome.inputs) ? genome.rows :
+							   (genome.inputs >= genome.outputs) ? genome.inputs : genome.outputs;
+
+			const chromosomeHeight = 80 + (maxRowElem - 1) * 90;
+			const initialHeight = (height - chromosomeHeight > 0) ? 40 + (height - chromosomeHeight) / 2 : 50;
+
+			const initialInputOffset = [initialWidth, initialHeight];
+
+			const initialGridOffset = [initialInputOffset[Coord.X] + 115, initialInputOffset[Coord.Y]];
 			const offsetBetweenNodes = [130, 90];
-		
-			const initialInputOffset = [70, 120];
-			const initialGridOffset = [185, 120];
+
 			const initialOutputOffset = [
 				initialGridOffset[Coord.X] + genome.columns * offsetBetweenNodes[Coord.X], 
 				initialGridOffset[Coord.Y]
@@ -994,8 +1008,8 @@ const ChromosomeBox: React.FC<ChromosomeBoxProps> = ({inputs, outputs, run, hide
 	<svg 
 		ref={svgRef}
 		id="chromosome-box" 
-		width={900} 
-		height={600} 
+		width={width} 
+		height={height} 
 		style={{
 			position: "relative", 
 			top: "0px",        

@@ -34,6 +34,7 @@ type Run = {
 }
 
 function App() {
+    const [description, setDescription] = useState<string>("");
     const [inputs, setInputs] = useState<string[]>([]);
     const [outputs, setOutputs] = useState<string[]>([]);
     const [runs, setRuns] = useState<Run[]>([]);
@@ -43,7 +44,8 @@ function App() {
         setSelectedRunId(runId);
     };
 
-    const handleParsedData = (parsedInputs: string[], parsedOutputs: string[], parsedRuns: Run[]) => {
+    const handleParsedData = (parsedDescription: string, parsedInputs: string[], parsedOutputs: string[], parsedRuns: Run[]) => {
+        (!parsedDescription.length) ? setDescription("Description N/A") : setDescription(parsedDescription)
         setInputs(parsedInputs);
         setOutputs(parsedOutputs);
         setRuns(parsedRuns);
@@ -68,13 +70,30 @@ function App() {
                 alignItems: "center",
                 width: "100%",
                 height: "10vh",
-                marginTop: "10px",
-                marginBottom: "30px",
+                marginTop: "0px",
+                marginBottom: "10px",
                 gap: "50px",
             }}
         >
             <h1 style={{ margin: 0, fontWeight: "bold", fontSize: "48px" }}>CGP Visualizer</h1>
             <FileReaderComponent onDataParsed={handleParsedData} />
+        </div>
+
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+                height: "4vh",
+                marginBottom: "25px",
+            }}
+        >
+            {description.length === 0 ? (
+                <p/>
+            ) : (
+                <p style={{ margin: 0, fontWeight: "bold", fontSize: "36px", color: "#d3af37" }}>{description}</p>
+            )}
         </div>
         
         <div
@@ -144,7 +163,7 @@ function App() {
                 width: "100%",
                 height: "10vh",
                 marginTop: "30px",
-                gap: "50px"
+                marginBottom: "-10px",
             }}
         >
             <button
